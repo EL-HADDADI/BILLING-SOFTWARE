@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from collections import ChainMap
 import sys
 from PyQt5.uic import loadUi
+from _datetime import datetime
 import sqlite3
 import db
 
@@ -476,8 +477,32 @@ class MAIN(QMainWindow):
     def rcpt(self):
         self.id()
         self.storage()
-        self.message.information(self,"Info","Sales Made and Recorded")
+        self.print()
+        self.message.information(self,"Info","Sales Made and Recorded also Reciept Ready")
         self.clearfncn()
+
+
+    def print(self):
+
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        with open(r"c:\Users\personal\Desktop\zoom teach\print\p.txt","w") as f:
+            f.write("\t\t_____________________ Corler store _________________\n\n")
+            f.write("\t\t_____________________ Invoice ______________________\n\n")
+            f.write("\t\t"+"Customer-NAME :     "+ self.name.text() +"\n\n")
+            f.write("\t\t" +"Bill-No :     "+ self.bill.text() + "\n\n")
+            f.write("\t\t" +"DATE/TIME :   "+ dt_string + "\n\n")
+            r = self.table.rowCount()
+            c = self.table.columnCount()
+            r -= 1
+
+            for rr in range(r):
+                for cc in range(c):
+                    f.write("\t\t" +self.table.item(rr, cc).text()+"     ")
+                f.write("\n\n")
+            f.write("\t\t\t\t\t\t\tTOTAL-----  #"+ self.GRAND.text() +"\n\n")
+            print("yeah")
+            f.write("\t\t__________ Thank you for your patronage____________\n\n")
 
 
 
@@ -749,7 +774,10 @@ class MAIN(QMainWindow):
 
     def storage(self):
 
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         sid = self.bill.text()
+        sdate = dt_string
         sname =self.name.text()
         sphone = self.phone.text()
         stotal = self.GRAND.text()
@@ -767,14 +795,15 @@ class MAIN(QMainWindow):
                 self.li.append(l)
         self.list.append(self.li)
 
-        print(self.list)
 
         sproducts = str(self.list)
 
-        db.insertRecord(sid, sname, sphone, stotal, sproducts)
+        db.insertRecord(sid, sdate, sname, sphone, stotal, sproducts)
 
         self.li.clear()
         self.list.clear()
+
+
 
 
 

@@ -1,0 +1,24 @@
+		_____________________ Corler store _________________
+
+		_____________________ Invoice ______________________
+
+		Customer-NAME :     jumoke
+
+		Bill-No :     15
+
+		DATE/TIME :   11/09/2022 20:21:17
+
+		NAME     		QTY     		RATE     		AMOUNT     
+
+		LOTION     		5     		1500     		7500     
+
+		SOAP     		6     		500     		3000     
+
+		PEPSI     		5     		200     		1000     
+
+		CIROC     		5     		25000     		125000     
+
+							TOTAL-----  #136500
+
+		__________ Thank you for your patronage____________
+
