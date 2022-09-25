@@ -1,24 +1,39 @@
-		_____________________ Corler store _________________
+	__________________ Corler store ______________
 
-		_____________________ Invoice ______________________
+	 Address:    11,kingston Road, Ikeja, Lagos
 
-		Customer-NAME :     jumoke
+	 Phone:    08085872783 
 
-		Bill-No :     15
 
-		DATE/TIME :   11/09/2022 20:21:17
+	___________________ Invoice ___________________
 
-		NAME     		QTY     		RATE     		AMOUNT     
+	Customer-NAME :     KATE
 
-		LOTION     		5     		1500     		7500     
+	Bill-Number :     5
 
-		SOAP     		6     		500     		3000     
+	DATE/TIME :   25/09/2022 17:39:38
 
-		PEPSI     		5     		200     		1000     
+	_____________________________________________
 
-		CIROC     		5     		25000     		125000     
+	HAIR-GEL
+	2      X   2000   ==   4000
+	___________________
 
-							TOTAL-----  #136500
+	SOAP
+	2      X   500   ==   1000
+	___________________
 
-		__________ Thank you for your patronage____________
+	CIROC
+	2      X   30000   ==   60000
+	___________________
+
+	PEPSI
+	5      X   200   ==   1000
+	___________________
+
+	___________________________________________
+
+			TOTAL-----  #66000
+
+	______ Thank you for your patronage__________
 

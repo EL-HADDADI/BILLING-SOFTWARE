@@ -1,4 +1,3 @@
-
 from PyQt5.QtWidgets import *
 from collections import ChainMap
 import sys
@@ -6,6 +5,7 @@ from PyQt5.uic import loadUi
 from _datetime import datetime
 import sqlite3
 import db
+import os
 
 
 class LOGIN(QMainWindow):
@@ -24,7 +24,6 @@ class LOGIN(QMainWindow):
         self.cleared()
         self.message = QMessageBox()
 
-
     def logfcn(self):
         self.uname = self.username.text()
         self.pword = self.password.text()
@@ -34,7 +33,6 @@ class LOGIN(QMainWindow):
             self.L.show()
             self.hide()
             self.cleared()
-
 
             self.username.setText("")
             self.password.setText("")
@@ -54,7 +52,6 @@ class LOGIN(QMainWindow):
             self.L.show()
             self.hide()
             self.cleared()
-
 
             self.admusername.setText("")
             self.admpassword.setText("")
@@ -87,33 +84,27 @@ class LOGIN(QMainWindow):
         self.admpassword.show()
         self.adm_btn.show()
 
-
     def exit(self):
         self.L = LOGIN()
         self.close()
 
 
-
-
-
-
 class MAIN(QMainWindow):
     def __init__(self):
         super().__init__()
-        loadUi("project.ui",self)
+        loadUi("project.ui", self)
         self.message = QMessageBox()
         db.connect()
-        #self.bill_num = random.randint(1,100)
-        #self.bill.setText(str(self.bill_num))
+        # self.bill_num = random.randint(1,100)
+        # self.bill.setText(str(self.bill_num))
 
         self.row = 0
         self.rc = 2
         self.load()
-        #self.dictionary =1
+        # self.dictionary =1
         self.list = []
         self.li = []
         self.id2()
-
 
         self.loadCosmetics()
         self.loadAlcohol()
@@ -129,12 +120,11 @@ class MAIN(QMainWindow):
         self.FINAL.clicked.connect(self.TOTAL)
         self.clear.clicked.connect(self.clearfncn)
         self.logout_btn.clicked.connect(self.logout)
-        self.btn.clicked.connect(self.radio)
+        self.re.clicked.connect(self.rep)
 
         self.quantity("0")
-        
 
-    def quantity(self,v):
+    def quantity(self, v):
         value = v
 
         self.TC.setText(v)
@@ -143,68 +133,43 @@ class MAIN(QMainWindow):
         self.TA.setText(v)
         self.GRAND.setText(v)
 
-    def forTOT(self,v):
+    def forTOT(self, v):
         value = v
 
         self.GRAND.setText(v)
 
-
-
     def load(self):
         self.table.setRowCount(self.rc)
         self.table.setColumnCount(4)
-        #self.table.setItem(0,0,QTableWidgetItem("ID"))
-        self.table.setItem(0,0,QTableWidgetItem("NAME"))
-        self.table.setItem(0,1,QTableWidgetItem("QTY"))
-        self.table.setItem(0,2,QTableWidgetItem("RATE"))
-        self.table.setItem(0,3,QTableWidgetItem("AMOUNT"))
-        
+        # self.table.setItem(0,0,QTableWidgetItem("ID"))
+        self.table.setItem(0, 0, QTableWidgetItem("NAME"))
+        self.table.setItem(0, 1, QTableWidgetItem("QTY"))
+        self.table.setItem(0, 2, QTableWidgetItem("RATE"))
+        self.table.setItem(0, 3, QTableWidgetItem("AMOUNT"))
 
-
-
-
-
-
-    def parseProduct(self,pname,pqty,prate,pamount):
+    def parseProduct(self, pname, pqty, prate, pamount):
         qty1 = self.cosinp.text()
         qty2 = self.grocinp.text()
         qty3 = self.alcinp.text()
         qty4 = self.sofinp.text()
 
-        #if self.dictionary == 1:
-            #dic = {'Name': pname , 'Qty': pqty , 'Rate': prate , 'Amount': pamount}
 
-            #self.dic3 = dic
-            #for k,v  in self.dic3.items():
-                #print(k,"---",v)
-            #print(self.dic3)
-            #self.dictionary +=1
+        if self.row < self.table.rowCount():
 
+            self.row += 1
+            # self.table.setItem(self.row,0,QTableWidgetItem(pid))
+            self.table.setItem(self.row, 0, QTableWidgetItem(pname))
+            self.table.setItem(self.row, 1, QTableWidgetItem(pqty))
+            self.table.setItem(self.row, 2, QTableWidgetItem(prate))
+            self.table.setItem(self.row, 3, QTableWidgetItem(pamount))
 
-        #else:
-            #dic = {'Name': pname, 'Qty': pqty, 'Rate': prate, 'Amount': pamount}
-            #self.dic3 = ChainMap(self.dic3 , dic)
-            #for k,v in self.dic3.items():
-                #print(k,"---",v)
-            #print(self.dic3)
-
-        
-        if self.row < self.table.rowCount() :
-
-            self.row+=1
-            #self.table.setItem(self.row,0,QTableWidgetItem(pid))
-            self.table.setItem(self.row,0,QTableWidgetItem(pname))
-            self.table.setItem(self.row,1,QTableWidgetItem(pqty))
-            self.table.setItem(self.row,2,QTableWidgetItem(prate))
-            self.table.setItem(self.row,3,QTableWidgetItem(pamount))
-
-            self.rc = self.table.rowCount()+1
+            self.rc = self.table.rowCount() + 1
             self.table.setRowCount(self.rc)
 
 
         else:
-            print("more than row count")
-        
+            self.message.information(self,"Info","More than Row Count")
+
 
     def loadCosmetics(self):
 
@@ -219,22 +184,22 @@ class MAIN(QMainWindow):
                 self.cos_list.addItem(citems[1])
 
             con.commit()
-            #self.message.information(self,"Info","successfully Loaded")
+            # self.message.information(self,"Info","successfully Loaded")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
 
     def totalCosmetics(self):
         name = self.cos_list.currentText()
-        #print(self.cos_list.currentText())
+        # print(self.cos_list.currentText())
 
         try:
             con = sqlite3.connect("./db/mini_database.db")
             cursor = con.cursor()
-            cursor.execute("SELECT * FROM cosmetics WHERE NAME= '"+name+"'")
+            cursor.execute("SELECT * FROM cosmetics WHERE NAME= '" + name + "'")
             record = cursor.fetchall()
 
             for r in record:
@@ -242,21 +207,18 @@ class MAIN(QMainWindow):
 
             inp = int(self.cosinp.text())
             TCOS = T * inp
-            self.C = int(self.TC.text())+TCOS
+            self.C = int(self.TC.text()) + TCOS
             self.TC.setText(str(self.C))
-            #print(self.TC.text())
-                
+            # print(self.TC.text())
 
             con.commit()
-            self.message.information(self,"Info","Operation COSM Performed")
+            #self.message.information(self, "Info", "Operation COSM Performed")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
-
-        
 
     def loadAlcohol(self):
 
@@ -271,22 +233,22 @@ class MAIN(QMainWindow):
                 self.alc_list.addItem(aitems[1])
 
             con.commit()
-            #self.message.information(self,"Info","successfully Loaded")
+            # self.message.information(self,"Info","successfully Loaded")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
 
     def totalAlcohol(self):
         name = self.alc_list.currentText()
-        #print(self.cos_list.currentText())
+        # print(self.cos_list.currentText())
 
         try:
             con = sqlite3.connect("./db/mini_database.db")
             cursor = con.cursor()
-            cursor.execute("SELECT * FROM alcohol WHERE NAME= '"+name+"'")
+            cursor.execute("SELECT * FROM alcohol WHERE NAME= '" + name + "'")
             record = cursor.fetchall()
 
             for r in record:
@@ -294,21 +256,18 @@ class MAIN(QMainWindow):
 
             inp = int(self.alcinp.text())
             TALC = T * inp
-            self.A = int(self.TA.text())+TALC
+            self.A = int(self.TA.text()) + TALC
             self.TA.setText(str(self.A))
-            #print(self.TA.text())
-                
+            # print(self.TA.text())
 
             con.commit()
-            self.message.information(self,"Info","Operation ALC Performed")
+            #self.message.information(self, "Info", "Operation ALC Performed")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
-
-
 
     def loadGrocery(self):
 
@@ -323,23 +282,22 @@ class MAIN(QMainWindow):
                 self.groc_list.addItem(gitems[1])
 
             con.commit()
-            #self.message.information(self,"Info","successfully Loaded")
+            # self.message.information(self,"Info","successfully Loaded")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
 
-
     def totalGroceries(self):
         name = self.groc_list.currentText()
-        #print(self.cos_list.currentText())
+        # print(self.cos_list.currentText())
 
         try:
             con = sqlite3.connect("./db/mini_database.db")
             cursor = con.cursor()
-            cursor.execute("SELECT * FROM groceries WHERE NAME= '"+name+"'")
+            cursor.execute("SELECT * FROM groceries WHERE NAME= '" + name + "'")
             record = cursor.fetchall()
 
             for r in record:
@@ -347,15 +305,14 @@ class MAIN(QMainWindow):
 
             inp = int(self.grocinp.text())
             TGROC = T * inp
-            self.G = int(self.TG.text())+TGROC
+            self.G = int(self.TG.text()) + TGROC
             self.TG.setText(str(self.G))
-                
 
             con.commit()
-            self.message.information(self,"Info","Operation GROC Performed")
+            #self.message.information(self, "Info", "Operation GROC Performed")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
@@ -373,22 +330,22 @@ class MAIN(QMainWindow):
                 self.sof_list.addItem(sitems[1])
 
             con.commit()
-            #self.message.information(self,"Info","successfully Loaded")
+            # self.message.information(self,"Info","successfully Loaded")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
 
     def totalSoftdrinks(self):
         name = self.sof_list.currentText()
-        #print(self.sof_list.currentText())
+        # print(self.sof_list.currentText())
 
         try:
             con = sqlite3.connect("./db/mini_database.db")
             cursor = con.cursor()
-            cursor.execute("SELECT * FROM softdrinks WHERE NAME= '"+name+"'")
+            cursor.execute("SELECT * FROM softdrinks WHERE NAME= '" + name + "'")
             record = cursor.fetchall()
 
             for r in record:
@@ -396,259 +353,602 @@ class MAIN(QMainWindow):
 
             inp = int(self.sofinp.text())
             TSOF = T * inp
-            self.S = int(self.TS.text())+TSOF
+            self.S = int(self.TS.text()) + TSOF
             self.TS.setText(str(self.S))
-                
 
             con.commit()
-            self.message.information(self,"Info","Operation SOF Performed")
+            #self.message.information(self, "Info", "Operation SOF Performed")
 
         except Exception as e:
-            #self.message.information(self,"Error",e)
+            # self.message.information(self,"Error",e)
             print(e)
 
             con.close()
 
+
     def cosmeticsProduct(self):
-        if int(self.cosinp.text()) >= 1:
-            
+
+        if self.rc <=2:
+            if int(self.cosinp.text()) >= 1:
+
+                get = self.cos_list.currentText()
+                qty = self.cosinp.text()
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM cosmetics WHERE NAME='" + get + "'")
+                    record = cursor.fetchall()
+
+                    cosm = record
+
+                    for cm in cosm:
+                        total = int(cm[3]) * int(qty)
+                        # print(total)
+                        q = int(cm[2])
+                        aq = (q - int(qty))
+
+                        if aq > 3:
+                            self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                            self.totalCosmetics()
+
+                        elif q == 0:
+                            self.message.information(self, "Info", "product exhausted already")
+
+                        elif aq <= 3 and aq > 0:
+                            self.message.information(self, "Info", "available quantity getting low")
+                            self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                            self.totalCosmetics()
+
+                        elif aq == 0:
+                            self.message.information(self, "Info", "you are selling the last quantity")
+                            self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                            self.totalCosmetics()
+
+
+                        elif int(qty) > q and q > 1:
+                            self.message.information(self, "Info", "you have lesser available product")
+
+
+                        else:
+                            self.message.information(self, "Info", "check available quantity")
+
+                    con.commit()
+
+
+                except Exception as e:
+                    print(e)
+
+                    con.close()
+            else:
+                self.message.information(self, "Info", "No Quantity Entered for Cosmetics")
+
+        elif self.rc >2:
+
             get = self.cos_list.currentText()
-            qty = self.cosinp.text()
+            #print(self.rc)
+            # print(self.cos_list.currentText())
+
+            z = []
+            zz = 1
+            self.rc = self.table.rowCount()
+            self.rcc = self.rc - 2
+            #print(self.rcc)
+            # monitor = (self.table.item(self.rcc, 0).text())
+            for r in range(self.rcc):
+                z.append((self.table.item(zz, 0).text()))
+                zz += 1
+
+            zz = 1
+
+            #print(get)
+            #print(z)
 
 
-        
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM cosmetics WHERE NAME='"+get+"'")
-                record = cursor.fetchall()
-
-                cosm = record
-
-                for cm in cosm:
-                    total = int(cm[3])*int(qty)
-                    #print(total)
-                    q = int(cm[2])
-                    aq = (q - int(qty))
-
-                    if aq > 3:
-                        self.parseProduct(cm[1], qty, str(cm[3]), str(total))
-                        self.totalCosmetics()
-
-                    elif q == 0:
-                        self.message.information(self, "Info", "product exhausted already")
-
-                    elif aq <= 3 and aq > 0:
-                        self.message.information(self, "Info", "available quantity getting low")
-                        self.parseProduct(cm[1], qty, str(cm[3]), str(total))
-                        self.totalCosmetics()
-
-                    elif aq == 0:
-                        self.message.information(self, "Info", "you are selling the last quantity")
-                        self.parseProduct(cm[1], qty, str(cm[3]), str(total))
-                        self.totalCosmetics()
+            if get in z:
+                #print("get is in z")
+                self.message.information(self, "Info", "Product selected already")
 
 
-                    elif int(qty) > q and q > 1:
-                        self.message.information(self, "Info", "you have lesser available product")
+            elif get not in z:
+                #print("get is not in z")
+                if int(self.cosinp.text()) >= 1:
+
+                    get = self.cos_list.currentText()
+                    qty = self.cosinp.text()
+
+                    try:
+                        con = sqlite3.connect("./db/mini_database.db")
+                        cursor = con.cursor()
+                        cursor.execute("SELECT * FROM cosmetics WHERE NAME='" + get + "'")
+                        record = cursor.fetchall()
+
+                        cosm = record
+
+                        for cm in cosm:
+                            total = int(cm[3]) * int(qty)
+                            # print(total)
+                            q = int(cm[2])
+                            aq = (q - int(qty))
+
+                            if aq > 3:
+                                self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                                self.totalCosmetics()
+
+                            elif q == 0:
+                                self.message.information(self, "Info", "product exhausted already")
+
+                            elif aq <= 3 and aq > 0:
+                                self.message.information(self, "Info", "available quantity getting low")
+                                self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                                self.totalCosmetics()
+
+                            elif aq == 0:
+                                self.message.information(self, "Info", "you are selling the last quantity")
+                                self.parseProduct(cm[1], qty, str(cm[3]), str(total))
+                                self.totalCosmetics()
 
 
-                    else:
-                        self.message.information(self, "Info", "check available quantity")
-
-                                  
-                con.commit()
+                            elif int(qty) > q and q > 1:
+                                self.message.information(self, "Info", "you have lesser available product")
 
 
-            except Exception as e:
-                print(e)
+                            else:
+                                self.message.information(self, "Info", "check available quantity")
 
-                con.close()
+                        con.commit()
+
+
+                    except Exception as e:
+                        print(e)
+
+                        con.close()
+                else:
+                    self.message.information(self, "Info", "No Quantity Entered for Cosmetics")
+
         else:
-            self.message.information(self,"Info","No Quantity Entered for Cosmetics")
+            self.message.information(self, "Info", "RECHECK")
+
+
+
+
 
     def groceriesProduct(self):
-        
-        if int(self.grocinp.text()) >= 1:
-             
+
+        if self.rc <= 2:
+            if int(self.grocinp.text()) >= 1:
+
+                get = self.groc_list.currentText()
+                qty = self.grocinp.text()
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM groceries WHERE NAME='" + get + "'")
+                    record = cursor.fetchall()
+
+                    groc = record
+
+                    for gm in groc:
+                        total = int(gm[3]) * int(qty)
+                        # print(total)
+                        q = int(gm[2])
+                        aq = (q - int(qty))
+
+                        if aq > 3:
+                            self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                            self.totalGroceries()
+
+                        elif q == 0:
+                            self.message.information(self, "Info", "product exhausted already")
+
+                        elif aq <= 3 and aq > 0:
+                            self.message.information(self, "Info", "available quantity getting low")
+                            self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                            self.totalGroceries()
+
+                        elif aq == 0:
+                            self.message.information(self, "Info", "you are selling the last quantity")
+                            self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                            self.totalGroceries()
+
+
+                        elif int(qty) > q and q > 1:
+                            self.message.information(self, "Info", "you have lesser available product")
+
+
+                        else:
+                            self.message.information(self, "Info", "check available quantity")
+
+                    con.commit()
+
+
+                except Exception as e:
+                    print(e)
+
+                    con.close()
+            else:
+                self.message.information(self, "Info", "No Quantity Entered for Groceries")
+
+        elif self.rc > 2:
+
             get = self.groc_list.currentText()
-            qty = self.grocinp.text()
+            # print(self.rc)
+            # print(self.cos_list.currentText())
+
+            z = []
+            zz = 1
+            self.rc = self.table.rowCount()
+            self.rcc = self.rc - 2
+            # print(self.rcc)
+            # monitor = (self.table.item(self.rcc, 0).text())
+            for r in range(self.rcc):
+                z.append((self.table.item(zz, 0).text()))
+                zz += 1
+
+            zz = 1
+
+            # print(get)
+            # print(z)
+
+            if get in z:
+                # print("get is in z")
+                self.message.information(self, "Info", "Product selected already")
 
 
-        
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM groceries WHERE NAME='"+get+"'")
-                record = cursor.fetchall()
+            elif get not in z:
+                # print("get is not in z")
+                if int(self.grocinp.text()) >= 1:
 
-                groc = record
+                    get = self.groc_list.currentText()
+                    qty = self.grocinp.text()
 
-                for gm in groc:
-                    total = int(gm[3])*int(qty)
-                    #print(total)
-                    q = int(gm[2])
-                    aq = (q - int(qty))
+                    try:
+                        con = sqlite3.connect("./db/mini_database.db")
+                        cursor = con.cursor()
+                        cursor.execute("SELECT * FROM groceries WHERE NAME='" + get + "'")
+                        record = cursor.fetchall()
 
-                    if aq > 3:
-                        self.parseProduct(gm[1], qty, str(gm[3]), str(total))
-                        self.totalGroceries()
+                        groc = record
 
-                    elif q == 0:
-                        self.message.information(self, "Info", "product exausted already")
+                        for gm in groc:
+                            total = int(gm[3]) * int(qty)
+                            # print(total)
+                            q = int(gm[2])
+                            aq = (q - int(qty))
 
-                    elif aq <= 3 and aq > 0:
-                        self.message.information(self, "Info", "available quantity getting low")
-                        self.parseProduct(gm[1], qty, str(gm[3]), str(total))
-                        self.totalGroceries()
+                            if aq > 3:
+                                self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                                self.totalGroceries()
 
-                    elif aq == 0:
-                        self.message.information(self, "Info", "you are selling the last quantity")
-                        self.parseProduct(gm[1], qty, str(gm[3]), str(total))
-                        self.totalGroceries()
+                            elif q == 0:
+                                self.message.information(self, "Info", "product exhausted already")
+
+                            elif aq <= 3 and aq > 0:
+                                self.message.information(self, "Info", "available quantity getting low")
+                                self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                                self.totalGroceries()
+
+                            elif aq == 0:
+                                self.message.information(self, "Info", "you are selling the last quantity")
+                                self.parseProduct(gm[1], qty, str(gm[3]), str(total))
+                                self.totalGroceries()
 
 
-                    elif int(qty) > q and q > 1:
-                        self.message.information(self, "Info", "you have lesser available product")
+                            elif int(qty) > q and q > 1:
+                                self.message.information(self, "Info", "you have lesser available product")
 
 
-                    else:
-                        self.message.information(self, "Info", "check available quantity")
+                            else:
+                                self.message.information(self, "Info", "check available quantity")
 
-                                  
-                con.commit()
+                        con.commit()
 
-            except Exception as e:
-                print(e)
 
-                con.close()
+                    except Exception as e:
+                        print(e)
+
+                        con.close()
+                else:
+                    self.message.information(self, "Info", "No Quantity Entered for Groceries")
+
         else:
-            self.message.information(self,"Info","No Quantity Entered for Groceries")
+            self.message.information(self, "Info", "RECHECK")
+
 
 
     def alcoholProduct(self):
-        if int(self.alcinp.text()) >= 1:
-            
+
+        if self.rc <= 2:
+            if int(self.alcinp.text()) >= 1:
+
+                get = self.alc_list.currentText()
+                qty = self.alcinp.text()
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM alcohol WHERE NAME='" + get + "'")
+                    record = cursor.fetchall()
+
+                    alc = record
+
+                    for ac in alc:
+                        total = int(ac[3]) * int(qty)
+                        # print(total)
+                        q = int(ac[2])
+                        aq = (q - int(qty))
+
+                        if aq > 3:
+                            self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                            self.totalAlcohol()
+
+                        elif q == 0:
+                            self.message.information(self, "Info", "product exhausted already")
+
+                        elif aq <= 3 and aq > 0:
+                            self.message.information(self, "Info", "available quantity getting low")
+                            self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                            self.totalAlcohol()
+
+                        elif aq == 0:
+                            self.message.information(self, "Info", "you are selling the last quantity")
+                            self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                            self.totalAlcohol()
+
+
+                        elif int(qty) > q and q > 1:
+                            self.message.information(self, "Info", "you have lesser available product")
+
+
+                        else:
+                            self.message.information(self, "Info", "check available quantity")
+
+                    con.commit()
+
+
+                except Exception as e:
+                    print(e)
+
+                    con.close()
+            else:
+                self.message.information(self, "Info", "No Quantity Entered for Alcohol")
+
+        elif self.rc > 2:
 
             get = self.alc_list.currentText()
-            qty = self.alcinp.text()
+            # print(self.rc)
+            # print(self.cos_list.currentText())
+
+            z = []
+            zz = 1
+            self.rc = self.table.rowCount()
+            self.rcc = self.rc - 2
+            # print(self.rcc)
+            # monitor = (self.table.item(self.rcc, 0).text())
+            for r in range(self.rcc):
+                z.append((self.table.item(zz, 0).text()))
+                zz += 1
+
+            zz = 1
+
+            # print(get)
+            # print(z)
+
+            if get in z:
+                # print("get is in z")
+                self.message.information(self, "Info", "Product selected already")
 
 
-        
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM alcohol WHERE NAME='"+get+"'")
-                record = cursor.fetchall()
+            elif get not in z:
+                # print("get is not in z")
+                if int(self.alcinp.text()) >= 1:
+
+                    get = self.alc_list.currentText()
+                    qty = self.alcinp.text()
+
+                    try:
+                        con = sqlite3.connect("./db/mini_database.db")
+                        cursor = con.cursor()
+                        cursor.execute("SELECT * FROM alcohol WHERE NAME='" + get + "'")
+                        record = cursor.fetchall()
+
+                        alc = record
+
+                        for ac in alc:
+                            total = int(ac[3]) * int(qty)
+                            # print(total)
+                            q = int(ac[2])
+                            aq = (q - int(qty))
+
+                            if aq > 3:
+                                self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                                self.totalAlcohol()
+
+                            elif q == 0:
+                                self.message.information(self, "Info", "product exhausted already")
+
+                            elif aq <= 3 and aq > 0:
+                                self.message.information(self, "Info", "available quantity getting low")
+                                self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                                self.totalAlcohol()
+
+                            elif aq == 0:
+                                self.message.information(self, "Info", "you are selling the last quantity")
+                                self.parseProduct(ac[1], qty, str(ac[3]), str(total))
+                                self.totalAlcohol()
 
 
-                alc = record
-
-                for ac in alc:
-                    total = int(ac[3]) * int(qty)
-                    #print(total)
-                    q = int(ac[2])
-                    aq = (q - int(qty))
-
-                    if aq > 3:
-                        self.parseProduct(ac[1], qty, str(ac[3]), str(total))
-                        self.totalAlcohol()
-
-                    elif q == 0:
-                        self.message.information(self, "Info", "product exausted already")
-
-                    elif aq <= 3 and aq > 0:
-                        self.message.information(self, "Info", "available quantity getting low")
-                        self.parseProduct(ac[1], qty, str(ac[3]), str(total))
-                        self.totalAlcohol()
-
-                    elif aq == 0:
-                        self.message.information(self, "Info", "you are selling the last quantity")
-                        self.parseProduct(ac[1], qty, str(ac[3]), str(total))
-                        self.totalAlcohol()
+                            elif int(qty) > q and q > 1:
+                                self.message.information(self, "Info", "you have lesser available product")
 
 
-                    elif int(qty) > q and q > 1:
-                        self.message.information(self, "Info", "you have lesser available product")
+                            else:
+                                self.message.information(self, "Info", "check available quantity")
+
+                        con.commit()
 
 
-                    else:
-                        self.message.information(self, "Info", "check available quantity")
+                    except Exception as e:
+                        print(e)
 
+                        con.close()
+                else:
+                    self.message.information(self, "Info", "No Quantity Entered for Alcohol")
 
-                con.commit()
-
-
-            except Exception as e:
-                print(e)
-
-                con.close()
         else:
-            self.message.information(self,"Info","No Quantity Entered for Alcohol")
+            self.message.information(self, "Info", "RECHECK")
+
 
     def softdrinksProduct(self):
-        if int(self.sofinp.text()) >= 1:
-            
+        if self.rc <= 2:
+            if int(self.sofinp.text()) >= 1:
+
+                get = self.sof_list.currentText()
+                qty = self.sofinp.text()
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM softdrinks WHERE NAME='" + get + "'")
+                    record = cursor.fetchall()
+
+                    sof = record
+
+                    for sf in sof:
+                        total = int(sf[3]) * int(qty)
+                        # print(total)
+                        q = int(sf[2])
+                        aq = (q - int(qty))
+
+                        if aq > 3:
+                            self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                            self.totalSoftdrinks()
+
+                        elif q == 0:
+                            self.message.information(self, "Info", "product exhausted already")
+
+                        elif aq <= 3 and aq > 0:
+                            self.message.information(self, "Info", "available quantity getting low")
+                            self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                            self.totalSoftdrinks()
+
+                        elif aq == 0:
+                            self.message.information(self, "Info", "you are selling the last quantity")
+                            self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                            self.totalSoftdrinks()
+
+
+
+                        elif int(qty) > q and q > 1:
+                            self.message.information(self, "Info", "you have lesser available product")
+
+
+                        else:
+                            self.message.information(self, "Info", "check available quantity")
+
+                    con.commit()
+
+
+                except Exception as e:
+                    print(e)
+
+                    con.close()
+            else:
+                self.message.information(self, "Info", "No Quantity Entered for SoftDrinks")
+
+        elif self.rc > 2:
 
             get = self.sof_list.currentText()
-            qty = self.sofinp.text()
+            # print(self.rc)
+            # print(self.cos_list.currentText())
+
+            z = []
+            zz = 1
+            self.rc = self.table.rowCount()
+            self.rcc = self.rc - 2
+            # print(self.rcc)
+            # monitor = (self.table.item(self.rcc, 0).text())
+            for r in range(self.rcc):
+                z.append((self.table.item(zz, 0).text()))
+                zz += 1
+
+            zz = 1
+
+            # print(get)
+            # print(z)
+
+            if get in z:
+                # print("get is in z")
+                self.message.information(self, "Info", "Product selected already")
 
 
-        
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM softdrinks WHERE NAME='"+get+"'")
-                record = cursor.fetchall()
+            elif get not in z:
+                # print("get is not in z")
+                if int(self.sofinp.text()) >= 1:
 
-                sof = record
+                    get = self.sof_list.currentText()
+                    qty = self.sofinp.text()
 
-                for sf in sof:
-                    total = int(sf[3])*int(qty)
-                    q = int(sf[2])
-                    aq = (q - int(qty))
+                    try:
+                        con = sqlite3.connect("./db/mini_database.db")
+                        cursor = con.cursor()
+                        cursor.execute("SELECT * FROM softdrinks WHERE NAME='" + get + "'")
+                        record = cursor.fetchall()
 
-                    if aq > 3:
-                        self.parseProduct(sf[1], qty, str(sf[3]), str(total))
-                        self.totalSoftdrinks()
+                        sof = record
 
-                    elif q == 0:
-                        self.message.information(self, "Info", "product exausted already")
+                        for sf in sof:
+                            total = int(sf[3]) * int(qty)
+                            # print(total)
+                            q = int(sf[2])
+                            aq = (q - int(qty))
 
-                    elif aq <= 3 and aq >0:
-                        self.message.information(self, "Info", "available quantity getting low")
-                        self.parseProduct(sf[1], qty, str(sf[3]), str(total))
-                        self.totalSoftdrinks()
+                            if aq > 3:
+                                self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                                self.totalSoftdrinks()
 
-                    elif aq == 0 :
-                        self.message.information(self, "Info", "you are selling the last quantity")
-                        self.parseProduct(sf[1], qty, str(sf[3]), str(total))
-                        self.totalSoftdrinks()
+                            elif q == 0:
+                                self.message.information(self, "Info", "product exhausted already")
 
+                            elif aq <= 3 and aq > 0:
+                                self.message.information(self, "Info", "available quantity getting low")
+                                self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                                self.totalSoftdrinks()
 
-                    elif int(qty) > q and q  > 1:
-                        self.message.information(self, "Info", "you have lesser available product")
-
-
-                    else:
-                        self.message.information(self, "Info", "check available quantity")
-
-
-                                  
-                con.commit()
+                            elif aq == 0:
+                                self.message.information(self, "Info", "you are selling the last quantity")
+                                self.parseProduct(sf[1], qty, str(sf[3]), str(total))
+                                self.totalSoftdrinks()
 
 
-            except Exception as e:
-                print(e)
+                            elif int(qty) > q and q > 1:
+                                self.message.information(self, "Info", "you have lesser available product")
 
-                con.close()
+
+                            else:
+                                self.message.information(self, "Info", "check available quantity")
+
+                        con.commit()
+
+
+                    except Exception as e:
+                        print(e)
+
+                        con.close()
+                else:
+                    self.message.information(self, "Info", "No Quantity Entered for Softdrinks")
+
         else:
-            self.message.information(self,"Info","No Quantity Entered for SoftDrinks")
+            self.message.information(self, "Info", "RECHECK")
+
+
+
 
     def TOTAL(self):
         self.forTOT("0")
-        self.GG = int(self.TC.text())+int(self.TA.text())+int(self.TG.text())+int(self.TS.text())
-        self.GRAND.setText(str(int(self.GRAND.text())+self.GG))
+        self.GG = int(self.TC.text()) + int(self.TA.text()) + int(self.TG.text()) + int(self.TS.text())
+        self.GRAND.setText(str(int(self.GRAND.text()) + self.GG))
 
     def clearfncn(self):
 
@@ -674,7 +974,7 @@ class MAIN(QMainWindow):
         self.storage()
         self.print()
         self.id()
-        self.message.information(self,"Info","Sales Made and Recorded also Reciept Ready")
+        self.message.information(self, "Info", "Sales Made and Recorded also Reciept Ready")
         self.clearfncn()
 
 
@@ -682,182 +982,239 @@ class MAIN(QMainWindow):
 
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        with open(r"c:\Users\personal\Desktop\zoom teach\print\p.txt","w") as f:
-            f.write("\t\t_____________________ Corler store ______________\n\n")
-            f.write("\t\t 11,kingston Road, Ikeja, Lagos\n\n")
-            f.write("\t\t 08085872783\n\n\n")
-            f.write("\t\t_____________________ Invoice ___________________\n\n")
-            f.write("\t\t"+"Customer-NAME :     "+ self.name.text() +"\n\n")
-            f.write("\t\t" +"Bill-No :     "+ self.bill.text() + "\n\n")
-            f.write("\t\t" +"DATE/TIME :   "+ dt_string + "\n\n")
-            f.write("\t\t_____________________________________________\n\n")
+        with open(r"c:\Users\personal\Documents\COMPLETED PROJECTS\BILLING SOFTWARE\print\p.txt", "w") as f:
+            f.write("\t__________________ Corler store ______________\n\n")
+            f.write("\t Address:    11,kingston Road, Ikeja, Lagos\n\n")
+            f.write("\t Phone:    08085872783 \n\n\n")
+            f.write("\t___________________ Invoice ___________________\n\n")
+            f.write("\t" + "Customer-NAME :     " + self.name.text() + "\n\n")
+            f.write("\t" + "Bill-Number :     " + self.bill.text() + "\n\n")
+            f.write("\t" + "DATE/TIME :   " + dt_string + "\n\n")
+            f.write("\t_____________________________________________\n\n")
             r = self.table.rowCount()
             c = self.table.columnCount()
             r -= 1
 
-            for rr in range(1,r):
+            for rr in range(1, r):
                 for cc in range(1):
-                    f.write("\t\t" + self.table.item(rr, 0).text()+ "\n")
-                    f.write("\t\t" + self.table.item(rr, 1).text()+"   ")
-                    f.write("  "+" X "+"  ")
+                    f.write("\t" + self.table.item(rr, 0).text() + "\n")
+                    f.write("\t" + self.table.item(rr, 1).text() + "   ")
+                    f.write("  " + " X " + "  ")
                     f.write(self.table.item(rr, 2).text())
                     f.write("  " + " == " + "  ")
-                    f.write(self.table.item(rr, 3).text()+"\n")
-                    f.write("\t\t___________________\n")
-
+                    f.write(self.table.item(rr, 3).text() + "\n")
+                    f.write("\t___________________\n")
 
                 f.write("\n")
-            f.write("\t\t___________________________________________\n\n")
-            f.write("\t\t\t\tTOTAL-----  #"+ self.GRAND.text() +"\n\n")
-            f.write("\t\t______ Thank you for your patronage__________\n\n")
+            f.write("\t___________________________________________\n\n")
+            f.write("\t\t\tTOTAL-----  #" + self.GRAND.text() + "\n\n")
+            f.write("\t______ Thank you for your patronage__________\n\n")
+            i = self.bill.text()
+
+
+        f = open(r"c:\Users\personal\Documents\COMPLETED PROJECTS\BILLING SOFTWARE\print\p.txt", "r")
+        if f.mode == 'r':
+            content = f.read()
+
+
+
+        db.RePrint(i, content)
+
+        os.startfile(r"c:\Users\personal\Documents\COMPLETED PROJECTS\BILLING SOFTWARE\print\p.txt")
+
+
+    def rep(self):
+        if self.reprintid.text() == "":
+            self.message.information(self, "Info", "input Product ID")
+
+        else:
+            idd = int(self.reprintid.text())
+            iddd = str(idd)
+
+            try:
+                con = sqlite3.connect("./db/mini_database.db")
+                cursor = con.cursor()
+                cursor.execute("SELECT * FROM reprint WHERE ID='" + iddd + "'")
+                record = cursor.fetchall()
+                repr = record
+
+                rl = []
+                for r in repr:
+                    rl.append(r[0])
+
+                if idd in rl:
+                    try:
+                        con = sqlite3.connect("./db/mini_database.db")
+                        cursor = con.cursor()
+                        cursor.execute("SELECT * FROM reprint WHERE ID='" + iddd + "'")
+                        record = cursor.fetchall()
+                        re = record
+                        for r in record:
+                            rec = r[1]
+
+                        with open(r"c:\Users\personal\Desktop\zoom teach\print/p.txt", "w") as p:
+                            p.write(rec)
+                            # rec
+
+                        con.commit()
+
+                        os.startfile(r"c:\Users\personal\Desktop\zoom teach\print/p.txt")
+                        self.message.information(self, "Info", "Reprint ready")
+
+
+                    except Exception as e:
+                        self.message.information(self, "Error", e)
+
+                elif self.reprintid.text() == "":
+                    self.message.information(self, "Info", "input Product ID")
+
+                else:
+                    self.message.information(self, "Info", "Invalid Reciept ID")
+
+                con.commit()
+
+
+            except Exception as e:
+
+                self.message.information(self, "Error", e)
 
 
 
     def delfcn(self):
 
         if self.table.rowCount() > 2:
-            var = self.table.currentRow()
-            self.table.item(var, 3).text()
-
-
-            self.nme = self.table.item(var, 0).text()
-#################################################################1
             try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM cosmetics")
-                record = cursor.fetchall()
-                cosm = record
 
-                u1 = []
+                var = self.table.currentRow()
+                self.table.item(var, 3).text()
 
-                for citems in cosm:
-                    print(citems[1])
-                    u1.append(citems[1])
+                self.nme = self.table.item(var, 0).text()
+                #################################################################1
 
-                print(u1)
-                print("u1")
-                print(self.nme)
-                if self.nme in u1:
-                    self.C -= int(self.table.item(var, 3).text())
-                    self.TC.setText(str(self.C))
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM cosmetics")
+                    record = cursor.fetchall()
+                    cosm = record
 
+                    u1 = []
 
-                else:
-                    print("NOT HERE!!")
+                    for citems in cosm:
+                        u1.append(citems[1])
 
-
-                con.commit()
-                # self.message.information(self,"Info","successfully Loaded")
+                    if self.nme in u1:
+                        self.C -= int(self.table.item(var, 3).text())
+                        self.TC.setText(str(self.C))
 
 
-            except Exception as e:
-                # self.message.information(self,"Error",e)
-                print(e)
-            #################################################################2
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM groceries")
-                record = cursor.fetchall()
-                groc = record
+                    else:
+                        pass
 
-                u2 = []
-
-                for gitems in groc:
-                    u2.append(gitems[1])
-
-                print(u2)
-                print("u2")
-                print(self.nme)
-                if self.nme in u2:
-                    self.G -= int(self.table.item(var, 3).text())
-                    self.TG.setText(str(self.G))
+                    con.commit()
+                    # self.message.information(self,"Info","successfully Loaded")
 
 
-                else:
-                    print("NOT HERE!!")
+                except Exception as e:
+                    # self.message.information(self,"Error",e)
+                    print(e)
+                #################################################################2
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM groceries")
+                    record = cursor.fetchall()
+                    groc = record
 
-                con.commit()
-                # self.message.information(self,"Info","successfully Loaded")
+                    u2 = []
 
+                    for gitems in groc:
+                        u2.append(gitems[1])
 
-            except Exception as e:
-                # self.message.information(self,"Error",e)
-                print(e)
-
-            #################################################3
-
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM alcohol")
-                record = cursor.fetchall()
-                alc = record
-
-                u3 = []
-
-                for aitems in alc:
-                    u3.append(aitems[1])
-
-                print(u3)
-                print("u3")
-                print(self.nme)
-                if self.nme in u3:
-                    self.A -= int(self.table.item(var, 3).text())
-                    self.TA.setText(str(self.A))
+                    if self.nme in u2:
+                        self.G -= int(self.table.item(var, 3).text())
+                        self.TG.setText(str(self.G))
 
 
-                else:
-                    print("NOT HERE!!")
+                    else:
+                        print("NOT HERE!!")
+                        pass
 
-                con.commit()
-                # self.message.information(self,"Info","successfully Loaded")
-
-            except Exception as e:
-                # self.message.information(self,"Error",e)
-                print(e)
-
-            ###################################################4
-
-            try:
-                con = sqlite3.connect("./db/mini_database.db")
-                cursor = con.cursor()
-                cursor.execute("SELECT * FROM softdrinks")
-                record = cursor.fetchall()
-                sod = record
-
-                u4 = []
-
-                for sitems in sod:
-                    u4.append(sitems[1])
-
-                print(u4)
-                print("u4")
-                print(self.nme)
-                if self.nme in u4:
-                    self.S -= int(self.table.item(var, 3).text())
-                    self.TS.setText(str(self.S))
+                    con.commit()
+                    # self.message.information(self,"Info","successfully Loaded")
 
 
-                else:
-                    print("NOT HERE!!")
-                    pass
+                except Exception as e:
+                    # self.message.information(self,"Error",e)
+                    print(e)
 
-                con.commit()
-                # self.message.information(self,"Info","successfully Loaded")
+                #################################################3
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM alcohol")
+                    record = cursor.fetchall()
+                    alc = record
+
+                    u3 = []
+
+                    for aitems in alc:
+                        u3.append(aitems[1])
+
+                    if self.nme in u3:
+                        self.A -= int(self.table.item(var, 3).text())
+                        self.TA.setText(str(self.A))
 
 
-            except Exception as e:
-                # self.message.information(self,"Error",e)
-                print(e)
+                    else:
+                        pass
+
+                    con.commit()
+                    # self.message.information(self,"Info","successfully Loaded")
+
+                except Exception as e:
+                    # self.message.information(self,"Error",e)
+                    print(e)
+
+                ###################################################4
+
+                try:
+                    con = sqlite3.connect("./db/mini_database.db")
+                    cursor = con.cursor()
+                    cursor.execute("SELECT * FROM softdrinks")
+                    record = cursor.fetchall()
+                    sod = record
+
+                    u4 = []
+
+                    for sitems in sod:
+                        u4.append(sitems[1])
+
+                    if self.nme in u4:
+                        self.S -= int(self.table.item(var, 3).text())
+                        self.TS.setText(str(self.S))
 
 
+                    else:
+                        pass
+
+                    con.commit()
+                    # self.message.information(self,"Info","successfully Loaded")
 
 
-            self.table.removeRow(var)
-            self.row -= 1
-            con.close()
+                except Exception as e:
+                    # self.message.information(self,"Error",e)
+                    print(e)
+
+                self.table.removeRow(var)
+                self.row -= 1
+                con.close()
+
+
+            except:
+                self.message.information(self, "Info", "product to be deleted not selected")
+
 
 
         else:
@@ -865,25 +1222,6 @@ class MAIN(QMainWindow):
         self.forTOT("0")
 
 
-
-
-
-        #pass
-        #s = "LOTION
-        #f = self.table.findItems(s)
-        #self.mon = 1
-        #for i in range (self.row):
-            #f = self.table.item(self.mon, 0).text()
-            #self.mon+=1
-
-
-        ####self.table.removeRow(2)
-        ####self.row -=1
-        #self.matching_items = self.table.findItems(s, Qt.MatchContains)
-        #self.table.item(2,1)
-        #print(str(self.table. QTableWidgetItem(2,1)))
-        #print(self.table.Item(1, 0, QTableWidgetItem()))
-        #self.table.QTableWidgetItem(text[, type=Type])
 
     def id(self):
         self.bill.setText("")
@@ -899,8 +1237,6 @@ class MAIN(QMainWindow):
 
             number += 1
 
-
-
             con.commit()
 
 
@@ -910,13 +1246,11 @@ class MAIN(QMainWindow):
 
             con.close()
 
-
         try:
             con = sqlite3.connect("./db/mini_database.db")
             cursor = con.cursor()
 
-            cursor.execute("UPDATE ID  SET ID_NUM ='"+str(number)+"' WHERE SN = '"+str(num)+"'")
-
+            cursor.execute("UPDATE ID  SET ID_NUM ='" + str(number) + "' WHERE SN = '" + str(num) + "'")
 
             con.commit()
 
@@ -938,8 +1272,6 @@ class MAIN(QMainWindow):
 
             self.bill.setText(str(number))
 
-
-
             con.commit()
 
 
@@ -948,10 +1280,6 @@ class MAIN(QMainWindow):
             print(e)
 
             con.close()
-
-
-
-
 
     def id2(self):
         self.bill.setText("")
@@ -976,15 +1304,13 @@ class MAIN(QMainWindow):
 
             con.close()
 
-
-
     def storage(self):
 
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         sid = self.bill.text()
         sdate = dt_string
-        sname =self.name.text()
+        sname = self.name.text()
         sphone = self.phone.text()
         stotal = self.GRAND.text()
         a = []
@@ -992,19 +1318,17 @@ class MAIN(QMainWindow):
         C = []
         d = []
 
-
         r = self.table.rowCount()
         c = self.table.columnCount()
         self.unit = 0
         ut = 1
         utt = 1
-        r -=1
+        r -= 1
 
-        for rr in range(1,r):
+        for rr in range(1, r):
             self.rqn = (self.table.item(rr, 0).text())
             self.rq = (self.table.item(rr, 1).text())
-            #print(self.rqn)
-            #print(self.rq)
+
 
             try:
                 con = sqlite3.connect("db/mini_database.db")
@@ -1017,9 +1341,9 @@ class MAIN(QMainWindow):
                 for r in row:
                     a.append(r[1])
 
-                #print(a)
-                #print(self.rqn)
-                if self.rqn in a :
+                # print(a)
+                # print(self.rqn)
+                if self.rqn in a:
                     try:
                         con = sqlite3.connect("db/mini_database.db")
                         cur = con.cursor()
@@ -1032,17 +1356,15 @@ class MAIN(QMainWindow):
 
                         NQ = Q - int(self.rq)
 
-
                         con.commit()
-                        #self.message.information(self, "info", "new quantity gotten")
+                        # self.message.information(self, "info", "new quantity gotten")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
                     try:
-                        print("we in...")
                         con = sqlite3.connect("db/mini_database.db")
                         cur = con.cursor()
 
@@ -1050,17 +1372,17 @@ class MAIN(QMainWindow):
                             "UPDATE cosmetics SET  QTY ='" + str(NQ) + "' WHERE NAME ='" + self.rqn + "'")
 
                         con.commit()
-                        #self.message.information(self, "info", "updated")
+                        # self.message.information(self, "info", "updated")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
 
                 else:
                     pass
-                    #self.message.information(self, "info", "NOT IN COSMETICS")
+                    # self.message.information(self, "info", "NOT IN COSMETICS")
 
                 con.commit()
 
@@ -1079,9 +1401,9 @@ class MAIN(QMainWindow):
                 for r in row:
                     b.append(r[1])
 
-                #print(b)
-                #print(self.rqn)
-                if self.rqn in b :
+                # print(b)
+                # print(self.rqn)
+                if self.rqn in b:
                     try:
                         con = sqlite3.connect("db/mini_database.db")
                         cur = con.cursor()
@@ -1094,14 +1416,13 @@ class MAIN(QMainWindow):
 
                         NQ = Q - int(self.rq)
 
-
                         con.commit()
-                        #self.message.information(self, "info", "new quantity gotten")
+                        # self.message.information(self, "info", "new quantity gotten")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
                     try:
                         con = sqlite3.connect("db/mini_database.db")
@@ -1111,23 +1432,22 @@ class MAIN(QMainWindow):
                             "UPDATE groceries SET  QTY ='" + str(NQ) + "' WHERE NAME ='" + self.rqn + "'")
 
                         con.commit()
-                        #self.message.information(self, "info", "updated")
+                        # self.message.information(self, "info", "updated")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
 
                 else:
                     pass
-                    #self.message.information(self, "info", "NOT IN GROCERIES")
+                    # self.message.information(self, "info", "NOT IN GROCERIES")
 
                 con.commit()
 
             except Exception as e:
                 self.message.information(self, "Error", e)
-
 
             try:
                 con = sqlite3.connect("db/mini_database.db")
@@ -1140,9 +1460,9 @@ class MAIN(QMainWindow):
                 for r in row:
                     C.append(r[1])
 
-                #print(C)
-                #print(self.rqn)
-                if self.rqn in C :
+                # print(C)
+                # print(self.rqn)
+                if self.rqn in C:
                     try:
                         con = sqlite3.connect("db/mini_database.db")
                         cur = con.cursor()
@@ -1155,14 +1475,13 @@ class MAIN(QMainWindow):
 
                         NQ = Q - int(self.rq)
 
-
                         con.commit()
-                        #self.message.information(self, "info", "new quantity gotten")
+                        # self.message.information(self, "info", "new quantity gotten")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
                     try:
                         con = sqlite3.connect("db/mini_database.db")
@@ -1172,23 +1491,22 @@ class MAIN(QMainWindow):
                             "UPDATE alcohol SET  QTY ='" + str(NQ) + "' WHERE NAME ='" + self.rqn + "'")
 
                         con.commit()
-                        #self.message.information(self, "info", "updated")
+                        # self.message.information(self, "info", "updated")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
 
                 else:
                     pass
-                    #self.message.information(self, "info", "NOT IN ALCOHOL")
+                    # self.message.information(self, "info", "NOT IN ALCOHOL")
 
                 con.commit()
 
             except Exception as e:
                 self.message.information(self, "Error", e)
-
 
             try:
                 con = sqlite3.connect("db/mini_database.db")
@@ -1201,9 +1519,8 @@ class MAIN(QMainWindow):
                 for r in row:
                     d.append(r[1])
 
-                print(d)
-                print(self.rqn)
-                if self.rqn in d :
+
+                if self.rqn in d:
                     try:
                         con = sqlite3.connect("db/mini_database.db")
                         cur = con.cursor()
@@ -1216,14 +1533,13 @@ class MAIN(QMainWindow):
 
                         NQ = Q - int(self.rq)
 
-
                         con.commit()
-                        #self.message.information(self, "info", "new quantity gotten")
+                        # self.message.information(self, "info", "new quantity gotten")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
                     try:
                         con = sqlite3.connect("db/mini_database.db")
@@ -1233,17 +1549,17 @@ class MAIN(QMainWindow):
                             "UPDATE softdrinks SET  QTY ='" + str(NQ) + "' WHERE NAME ='" + self.rqn + "'")
 
                         con.commit()
-                        #self.message.information(self, "info", "updated")
+                        # self.message.information(self, "info", "updated")
 
                     except Exception as e:
                         self.message.information(self, "Error", e)
 
-                    #con.close()
+                    # con.close()
 
 
                 else:
                     pass
-                    #self.message.information(self, "info", "NOT IN SOFTDRINKS")
+                    # self.message.information(self, "info", "NOT IN SOFTDRINKS")
 
                 con.commit()
 
@@ -1256,13 +1572,12 @@ class MAIN(QMainWindow):
             self.cc = []
             self.d = []
 
-
             for cc in range(c):
                 l = (self.table.item(rr, cc).text())
                 self.li.append(l)
 
         self.list.append(self.li)
-        #print(str(self.uniting))
+        # print(str(self.uniting))
 
         sproducts = str(self.list)
 
@@ -1277,44 +1592,23 @@ class MAIN(QMainWindow):
         self.cc = []
         self.d = []
 
-
-
-    def radio(self):
-        if self.cash.isChecked():
-            self.message.information(self,"info","cash checked")
-
-        if self.transfer.isChecked():
-            self.message.information(self,"info","tranfer checked")
-
-
-
-
-
     def logout(self):
         self.L = LOGIN()
         self.L.show()
         self.hide()
 
 
-
-
-
-
-
-
-
-
 class ADMIN(QMainWindow):
     def __init__(self):
         super().__init__()
-        loadUi("admin.ui",self)
+        loadUi("admin.ui", self)
         self.message = QMessageBox()
         self.checking.hide()
         self.updt.hide()
         self.delete_btn.hide()
         self.logout.clicked.connect(self.logoutfcn)
         self.message = QMessageBox()
-        #self.registration.setStyleSheet("color:white;background:black")
+        # self.registration.setStyleSheet("color:white;background:black")
         db.connect()
 
         self.fields()
@@ -1325,14 +1619,14 @@ class ADMIN(QMainWindow):
         self.newalc.clicked.connect(self.insert4)
         self.checking.clicked.connect(self.searchRecord)
         self.registration.clicked.connect(self.regis)
-        #self.search.clicked.connect(self.sch)
+        # self.search.clicked.connect(self.sch)
         self.clear_btn.clicked.connect(self.clear)
         self.update.clicked.connect(self.updateRecord)
         self.showall.clicked.connect(self.all)
         self.delete_2.clicked.connect(self.delt)
         self.updt.clicked.connect(self.updatefcn)
         self.sale.clicked.connect(self.sales)
-        #self.check2.clicked.connect(self.checkupdt)
+        # self.check2.clicked.connect(self.checkupdt)
         self.delete_btn.clicked.connect(self.deletefcn)
         self.checker.hide()
 
@@ -1348,15 +1642,11 @@ class ADMIN(QMainWindow):
         name = self.NAME.text()
         qty = self.QTY.text()
         rate = self.RATE.text()
-        print(id)
-        print(name)
-        print(rate)
 
 
         db.adminInsert1(id, name, qty, rate)
-        #data = [reg, fname, lname, gender, dob, course]
-        #self.fields()
-
+        # data = [reg, fname, lname, gender, dob, course]
+        # self.fields()
 
         self.message.information(self, "info", "Record Added")
 
@@ -1367,9 +1657,8 @@ class ADMIN(QMainWindow):
         rate = self.RATE.text()
 
         db.adminInsert2(id, name, qty, rate)
-        #data = [reg, fname, lname, gender, dob, course]
-        #self.fields()
-
+        # data = [reg, fname, lname, gender, dob, course]
+        # self.fields()
 
         self.message.information(self, "info", "Record Added")
 
@@ -1379,11 +1668,9 @@ class ADMIN(QMainWindow):
         qty = self.QTY.text()
         rate = self.RATE.text()
 
-
         db.adminInsert3(id, name, qty, rate)
-        #data = [reg, fname, lname, gender, dob, course]
-        #self.fields()
-
+        # data = [reg, fname, lname, gender, dob, course]
+        # self.fields()
 
         self.message.information(self, "info", "Record Added")
 
@@ -1394,15 +1681,13 @@ class ADMIN(QMainWindow):
         rate = self.RATE.text()
 
         db.adminInsert4(id, name, qty, rate)
-        #data = [reg, fname, lname, gender, dob, course]
-        #self.fields()
-
+        # data = [reg, fname, lname, gender, dob, course]
+        # self.fields()
 
         self.message.information(self, "info", "Record Added")
 
-
     def sch(self):
-        #self.search.setStyleSheet("color:white;background:black")
+        # self.search.setStyleSheet("color:white;background:black")
         self.add.hide()
         self.check.show()
         self.updt.hide()
@@ -1437,12 +1722,12 @@ class ADMIN(QMainWindow):
         self.display.clear()
         self.updt.hide()
         self.delete_btn.hide()
-        #self.registration.setStyleSheet("color:white;background:black")
-        #self.update.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.delete_2.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.showall.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.search.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.check2.hide()
+        # self.registration.setStyleSheet("color:white;background:black")
+        # self.update.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.delete_2.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.showall.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.search.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.check2.hide()
         self.ID.setText("")
         self.NAME.setText("")
         self.QTY.setText("")
@@ -1458,11 +1743,11 @@ class ADMIN(QMainWindow):
         self.checker.hide()
         self.display.clear()
         self.updt.hide()
-        #self.registration.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.showall.setStyleSheet("color:white;background:black")
-        #self.update.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.delete_2.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.search.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.registration.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.showall.setStyleSheet("color:white;background:black")
+        # self.update.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.delete_2.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.search.setStyleSheet("background: rgb(68, 45, 34);")
         self.fields()
         self.ID.setText("")
         self.NAME.setText("")
@@ -1476,7 +1761,7 @@ class ADMIN(QMainWindow):
             cur.execute("SELECT * FROM cosmetics WHERE 1 ORDER BY ID Asc")
             row = cur.fetchall()
 
-            #checking = len(row)
+            # checking = len(row)
             # print(checking)
 
             self.display.setRowCount(self.track + 1)
@@ -1489,8 +1774,7 @@ class ADMIN(QMainWindow):
                 self.display.setItem(self.rowcheck, 3, QTableWidgetItem(str(r[3])))
                 self.rowcheck += 1
 
-
-            #self.rowcheck = 1
+            # self.rowcheck = 1
 
             con.commit()
 
@@ -1505,11 +1789,11 @@ class ADMIN(QMainWindow):
             cur.execute("SELECT * FROM groceries WHERE 1 ORDER BY ID Asc")
             row = cur.fetchall()
 
-            #checking = len(row)
+            # checking = len(row)
             # print(checking)
 
-            #self.display.setRowCount( self.track + 1)
-            #self.display.setColumnCount(4)
+            # self.display.setRowCount( self.track + 1)
+            # self.display.setColumnCount(4)
 
             for r in row:
                 self.display.setItem(self.rowcheck, 0, QTableWidgetItem(r[0]))
@@ -1518,7 +1802,7 @@ class ADMIN(QMainWindow):
                 self.display.setItem(self.rowcheck, 3, QTableWidgetItem(str(r[3])))
                 self.rowcheck += 1
 
-            #self.rowcheck = 1
+            # self.rowcheck = 1
 
             con.commit()
 
@@ -1533,11 +1817,11 @@ class ADMIN(QMainWindow):
             cur.execute("SELECT * FROM softdrinks WHERE 1 ORDER BY ID Asc")
             row = cur.fetchall()
 
-            #checking = len(row)
+            # checking = len(row)
             # print(checking)
 
-            #self.display.setRowCount( self.track + 1)
-            #self.display.setColumnCount(4)
+            # self.display.setRowCount( self.track + 1)
+            # self.display.setColumnCount(4)
 
             for r in row:
                 self.display.setItem(self.rowcheck, 0, QTableWidgetItem(r[0]))
@@ -1546,7 +1830,7 @@ class ADMIN(QMainWindow):
                 self.display.setItem(self.rowcheck, 3, QTableWidgetItem(str(r[3])))
                 self.rowcheck += 1
 
-            #self.rowcheck = 1
+            # self.rowcheck = 1
 
             con.commit()
 
@@ -1561,11 +1845,11 @@ class ADMIN(QMainWindow):
             cur.execute("SELECT * FROM alcohol WHERE 1 ORDER BY ID Asc")
             row = cur.fetchall()
 
-            #checking = len(row)
+            # checking = len(row)
             # print(checking)
 
-            #self.display.setRowCount( self.track + 1)
-            #self.display.setColumnCount(4)
+            # self.display.setRowCount( self.track + 1)
+            # self.display.setColumnCount(4)
 
             for r in row:
                 self.display.setItem(self.rowcheck, 0, QTableWidgetItem(r[0]))
@@ -1573,7 +1857,6 @@ class ADMIN(QMainWindow):
                 self.display.setItem(self.rowcheck, 2, QTableWidgetItem(str(r[2])))
                 self.display.setItem(self.rowcheck, 3, QTableWidgetItem(str(r[3])))
                 self.rowcheck += 1
-
 
             self.rowcheck = 1
             con.commit()
@@ -1597,8 +1880,6 @@ class ADMIN(QMainWindow):
         self.RATE.setText("")
         self.delete_btn.hide()
 
-
-
         try:
 
             con = sqlite3.connect("db/mini_database.db")
@@ -1607,13 +1888,12 @@ class ADMIN(QMainWindow):
             row = cur.fetchall()
 
             store = len(row)
-            store +=1
+            store += 1
             stored = 1
             # print(checking)
 
             self.display.setRowCount(store)
             self.display.setColumnCount(6)
-
 
             self.display.setItem(0, 0, QTableWidgetItem("ID"))
             self.display.setItem(0, 1, QTableWidgetItem("DATE/TIME"))
@@ -1621,8 +1901,6 @@ class ADMIN(QMainWindow):
             self.display.setItem(0, 3, QTableWidgetItem("PHONE"))
             self.display.setItem(0, 4, QTableWidgetItem("TOTAL"))
             self.display.setItem(0, 5, QTableWidgetItem("PRODUCT"))
-
-
 
             for r in row:
                 self.display.setItem(stored, 0, QTableWidgetItem(str(r[0])))
@@ -1633,15 +1911,11 @@ class ADMIN(QMainWindow):
                 self.display.setItem(stored, 5, QTableWidgetItem(r[5]))
                 stored += 1
 
-
             con.commit()
 
         except Exception as e:
             self.message.information(self, "Error", e)
         con.close()
-
-
-
 
     def searchRecord(self):
         self.na = []
@@ -1649,7 +1923,6 @@ class ADMIN(QMainWindow):
         self.nc = []
         self.nd = []
         reg = self.reg.text()
-        print(reg)
 
         try:
 
@@ -1662,12 +1935,11 @@ class ADMIN(QMainWindow):
             for r in row:
                 self.na.append(r[1])
 
-
-
             con.commit()
 
         except Exception as e:
-            print("cosmetics not selected")
+            pass
+            #print("cosmetics not selected")
 
         con.close()
 
@@ -1682,12 +1954,11 @@ class ADMIN(QMainWindow):
             for r in row:
                 self.nb.append(r[1])
 
-
-
             con.commit()
 
         except Exception as e:
-            print("groceries not selected")
+            pass
+            #print("groceries not selected")
 
         con.close()
 
@@ -1702,11 +1973,11 @@ class ADMIN(QMainWindow):
             for r in row:
                 self.nc.append(r[1])
 
-
             con.commit()
 
         except Exception as e:
-            print("softdrinks not selected")
+            pass
+            #print("softdrinks not selected")
 
         con.close()
 
@@ -1721,20 +1992,19 @@ class ADMIN(QMainWindow):
             for r in row:
                 self.nd.append(r[1])
 
-
             con.commit()
 
         except Exception as e:
-            print("alcohol not selected")
+            pass
+            #print("alcohol not selected")
 
         con.close()
-        print(self.na)
-        print(self.nb)
-        print(self.nc)
-        print(self.nd)
+        #print(self.na)
+        #print(self.nb)
+        #print(self.nc)
+        #print(self.nd)
 
         if reg in self.na:
-            print("we in first")
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
@@ -1742,7 +2012,7 @@ class ADMIN(QMainWindow):
                 row = cur.fetchall()
 
                 for r in row:
-                    print("we here")
+                    #print("we in first")
                     self.NAME.setText(r[1])
                     self.QTY.setText(str(r[2]))
                     self.RATE.setText(str(r[3]))
@@ -1757,7 +2027,7 @@ class ADMIN(QMainWindow):
             con.close()
 
         elif reg in self.nb:
-            print("we in second")
+            #print("we in second")
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
@@ -1766,7 +2036,6 @@ class ADMIN(QMainWindow):
                 row = cur.fetchall()
 
                 for r in row:
-                    print("we here")
                     self.NAME.setText(r[1])
                     self.QTY.setText(str(r[2]))
                     self.RATE.setText(str(r[3]))
@@ -1781,7 +2050,7 @@ class ADMIN(QMainWindow):
             con.close()
 
         elif reg in self.nc:
-            print("we in third")
+            #print("we in third")
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
@@ -1804,7 +2073,7 @@ class ADMIN(QMainWindow):
             con.close()
 
         elif reg in self.nd:
-            print("we in fourth")
+            #print("we in fourth")
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
@@ -1813,7 +2082,7 @@ class ADMIN(QMainWindow):
                 row = cur.fetchall()
 
                 for r in row:
-                    print("we here")
+                    #print("we here")
                     self.NAME.setText(r[1])
                     self.QTY.setText(str(r[2]))
                     self.RATE.setText(str(r[3]))
@@ -1829,13 +2098,11 @@ class ADMIN(QMainWindow):
 
         else:
             self.message.information(self, "info", "oops!! search unsuccessfull")
-
-
-
-
+            self.clear()
+            self.fields()
 
     def updateRecord(self):
-        #self.update.setStyleSheet("color:white;background:black")
+        # self.update.setStyleSheet("color:white;background:black")
         self.updt.show()
         self.newcos.hide()
         self.newgroc.hide()
@@ -1843,12 +2110,12 @@ class ADMIN(QMainWindow):
         self.newalc.hide()
         self.checker.show()
         self.checking.show()
-        #self.update.setStyleSheet("color:white;background:black")
-        #self.registration.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.delete_2.setStyleSheet("background-color: rgb(68, 45, 34);")
-        #self.search.setStyleSheet("background-color: rgb(68, 45, 34);")
-        #self.showall.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.check2.show()
+        # self.update.setStyleSheet("color:white;background:black")
+        # self.registration.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.delete_2.setStyleSheet("background-color: rgb(68, 45, 34);")
+        # self.search.setStyleSheet("background-color: rgb(68, 45, 34);")
+        # self.showall.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.check2.show()
         self.display.clear()
         self.clear()
         self.fields()
@@ -1859,16 +2126,16 @@ class ADMIN(QMainWindow):
         self.reg.setText("")
         self.NAME.setText("")
         self.RATE.setText("")
-        self.RATE.setText("")
+        self.QTY.setText("")
         self.display.clear()
 
     def delt(self):
-        #self.delete_2.setStyleSheet("color:white;background:black")
-        #self.update.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.registration.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.showall.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.search.setStyleSheet("background: rgb(68, 45, 34);")
-        #self.delete_btn.show()
+        # self.delete_2.setStyleSheet("color:white;background:black")
+        # self.update.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.registration.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.showall.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.search.setStyleSheet("background: rgb(68, 45, 34);")
+        # self.delete_btn.show()
         self.updt.hide()
         self.newcos.hide()
         self.newgroc.hide()
@@ -1890,11 +2157,10 @@ class ADMIN(QMainWindow):
 
             checking1 = len(row)
 
-            #print(checking1)
+            # print(checking1)
 
-            #self.display.setRowCount(checking + 1)
-            #self.display.setColumnCount(6)
-
+            # self.display.setRowCount(checking + 1)
+            # self.display.setColumnCount(6)
 
             con.commit()
 
@@ -1908,13 +2174,12 @@ class ADMIN(QMainWindow):
             row = cur.fetchall()
 
             checking2 = len(row)
-            #print(checking2)
+            # print(checking2)
 
             con.commit()
 
         except Exception as e:
             self.message.information(self, "Error", e)
-
 
         try:
             con = sqlite3.connect("db/mini_database.db")
@@ -1923,7 +2188,7 @@ class ADMIN(QMainWindow):
             row = cur.fetchall()
 
             checking3 = len(row)
-            #print(checking3)
+            # print(checking3)
 
             con.commit()
 
@@ -1937,17 +2202,16 @@ class ADMIN(QMainWindow):
             row = cur.fetchall()
 
             checking4 = len(row)
-            print(checking4)
+            #print(checking4)
             self.track = checking1 + checking2 + checking3 + checking4
-            #print(self.track)
-            self.display.setRowCount( self.track + 1)
+            # print(self.track)
+            self.display.setRowCount(self.track + 1)
             self.display.setColumnCount(4)
 
             self.display.setItem(0, 0, QTableWidgetItem("Reg No"))
             self.display.setItem(0, 1, QTableWidgetItem("NAME"))
             self.display.setItem(0, 2, QTableWidgetItem("QTY"))
             self.display.setItem(0, 3, QTableWidgetItem("RATE"))
-
 
             con.commit()
 
@@ -1970,18 +2234,18 @@ class ADMIN(QMainWindow):
                 self.RATE.setText(r[3])
 
 
-            print("HERE")
             con.commit()
 
         except Exception as e:
-            print("Not here")
+            pass
+
 
         try:
 
             con = sqlite3.connect("db/mini_database.db")
             cur = con.cursor()
 
-            cur.execute("SELECT * FROM cosmetics WHERE ID = '" + reg + "'")
+            cur.execute("SELECT * FROM groceries WHERE ID = '" + reg + "'")
             row = cur.fetchall()
 
             for r in row:
@@ -1989,11 +2253,12 @@ class ADMIN(QMainWindow):
                 self.NAME.setText(r[1])
                 self.RATE.setText(r[3])
 
-            print("here")
+
             con.commit()
 
         except Exception as e:
-            print("Not here")
+            pass
+            #print("Not here")
 
         try:
 
@@ -2008,12 +2273,12 @@ class ADMIN(QMainWindow):
                 self.NAME.setText(r[1])
                 self.RATE.setText(r[3])
 
-            print("here")
+
             con.commit()
 
         except Exception as e:
-            print("Not here")
-
+            pass
+            #print("Not here")
 
         try:
 
@@ -2028,16 +2293,15 @@ class ADMIN(QMainWindow):
                 self.NAME.setText(r[1])
                 self.RATE.setText(r[3])
 
-            print("here")
             con.commit()
 
         except Exception as e:
-            print("Not here")
-
+            pass
+            #print("Not here")
 
     def updatefcn(self):
         reg = self.reg.text()
-        #sid = self.ID.text()
+        # sid = self.ID.text()
         sname = self.NAME.text()
         sqty = self.QTY.text()
         srate = self.RATE.text()
@@ -2045,14 +2309,32 @@ class ADMIN(QMainWindow):
         self.display.clear()
         self.fields()
 
-
         if reg in self.na:
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
-                cur.execute(
-                    "UPDATE cosmetics SET  NAME ='" + sname + "',QTY ='" + sqty + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
+                cur.execute(
+                    "SELECT * FROM cosmetics WHERE NAME = '" + reg + "'")
+                row = cur.fetchall()
+
+                for r in row:
+                    ua = int(r[2])
+
+                fua = str(ua + int(sqty))
+
+                con.commit()
+
+            except Exception as e:
+                self.message.information(self, "Error", e)
+
+            con.close()
+
+            try:
+                con = sqlite3.connect("db/mini_database.db")
+                cur = con.cursor()
+                cur.execute(
+                    "UPDATE cosmetics SET  NAME ='" + sname + "',QTY ='" + fua + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
                 self.message.information(self, "info", "Successfully Updated")
 
@@ -2091,9 +2373,29 @@ class ADMIN(QMainWindow):
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
-                cur.execute(
-                    "UPDATE groceries SET  NAME ='" + sname + "',QTY ='" + sqty + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
+                cur.execute(
+                    "SELECT * FROM groceries WHERE NAME = '" + reg + "'")
+                row = cur.fetchall()
+
+                for r in row:
+                    ub = int(r[2])
+
+                fub = str(ub + int(sqty))
+
+
+                con.commit()
+
+            except Exception as e:
+                self.message.information(self, "Error", e)
+
+            con.close()
+
+            try:
+                con = sqlite3.connect("db/mini_database.db")
+                cur = con.cursor()
+                cur.execute(
+                    "UPDATE groceries SET  NAME ='" + sname + "',QTY ='" + fub + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
                 self.message.information(self, "info", "Successfully Updated")
 
@@ -2132,9 +2434,29 @@ class ADMIN(QMainWindow):
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
-                cur.execute(
-                    "UPDATE softdrinks SET  NAME ='" + sname + "',QTY ='" + sqty + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
+                cur.execute(
+                    "SELECT * FROM softdrinks WHERE NAME = '" + reg + "'")
+                row = cur.fetchall()
+
+                for r in row:
+                    uc = int(r[2])
+
+                fuc = str(uc + int(sqty))
+
+
+                con.commit()
+
+            except Exception as e:
+                self.message.information(self, "Error", e)
+
+            con.close()
+
+            try:
+                con = sqlite3.connect("db/mini_database.db")
+                cur = con.cursor()
+                cur.execute(
+                    "UPDATE softdrinks SET  NAME ='" + sname + "',QTY ='" + fuc + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
                 self.message.information(self, "info", "Successfully Updated")
 
@@ -2173,9 +2495,29 @@ class ADMIN(QMainWindow):
             try:
                 con = sqlite3.connect("db/mini_database.db")
                 cur = con.cursor()
-                cur.execute(
-                    "UPDATE alcohol SET  NAME ='" + sname + "',QTY ='" + sqty + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
+                cur.execute(
+                    "SELECT * FROM alcohol WHERE NAME = '" + reg + "'")
+                row = cur.fetchall()
+
+                for r in row:
+                    ud = int(r[2])
+
+                fud = str(ud + int(sqty))
+
+
+                con.commit()
+
+            except Exception as e:
+                self.message.information(self, "Error", e)
+
+            con.close()
+
+            try:
+                con = sqlite3.connect("db/mini_database.db")
+                cur = con.cursor()
+                cur.execute(
+                    "UPDATE alcohol SET  NAME ='" + sname + "',QTY ='" + fud + "',RATE ='" + srate + "' WHERE NAME ='" + reg + "'")
 
                 self.message.information(self, "info", "Successfully Updated")
 
@@ -2225,7 +2567,7 @@ class ADMIN(QMainWindow):
                 cur = con.cursor()
                 cur.execute("DELETE FROM cosmetics WHERE NAME = '" + reg + "'")
                 self.message.information(self, "info", "Record Deleted")
-                print("deleted")
+
 
                 con.commit()
 
@@ -2240,7 +2582,7 @@ class ADMIN(QMainWindow):
                 cur = con.cursor()
                 cur.execute("DELETE FROM groceries WHERE NAME = '" + reg + "'")
                 self.message.information(self, "info", "Record Deleted")
-                print("deleted")
+
 
                 con.commit()
 
@@ -2270,7 +2612,7 @@ class ADMIN(QMainWindow):
                 cur = con.cursor()
                 cur.execute("DELETE FROM alcohol WHERE NAME = '" + reg + "'")
                 self.message.information(self, "info", "Record Deleted")
-                print("deleted")
+
 
                 con.commit()
 
@@ -2282,7 +2624,6 @@ class ADMIN(QMainWindow):
         else:
             self.message.information(self, "info", "Record Not Deleted")
 
-
         self.clear()
         self.fields()
 
@@ -2290,9 +2631,6 @@ class ADMIN(QMainWindow):
         self.L = LOGIN()
         self.L.show()
         self.hide()
-
-
-
 
 
 app = QApplication(sys.argv)
